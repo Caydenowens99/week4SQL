@@ -1,0 +1,81 @@
+-- User enters in a title of a job position, procedure calculates the average salary of that title
+create procedure avg_salary(
+IN titlez varchar (50)
+)
+Begin
+select t.title , avg(s.salary)
+	from titles t 
+	inner join salaries s 
+	ON t.emp_no = s.emp_no 
+	GROUP BY t.title 
+	HAVING t.title = titlez;
+END;
+
+call avg_salary('Staff');
+
+-- User enters in a title of a job position, procedure calculates the Max salary of that title
+Create procedure highest_salary (
+IN department varchar (50)
+)
+BEGIN
+Select d.dept_name, MAX(s.salary)
+FROM departments d
+INNER JOIN dept_emp de 
+ON d.dept_no = de.dept_no 
+INNER JOIN salaries s
+ON de.emp_no = s.emp_no 
+GROUP BY d.dept_name 
+HAVING d.dept_name = department;
+END;
+ 
+Call highest_salary ('Marketing');
+ 
+-- user enters an employee number, proc gives how long they have worked there
+ 
+CREATE PROCEDURE years_worked (
+IN employee_ID int,
+OUT years_worked int
+)
+BEGIN
+DECLARE start_year int;
+DECLARE end_year int;
+ 
+SELECT year (de.from_date), year (de.to_date)
+INTO start_year, end_year
+FROM dept_emp de 
+WHERE de.emp_no = employee_ID
+LIMIT 1;
+ 
+IF end_year = 9999 THEN
+SET end_year = year(now());
+END IF;
+ 
+SELECT end_year - start_year INTO years_worked;
+END;
+
+-- user enters a salary range, gives the count of how many employee make that
+CREATE PROCEDURE salary_range (
+IN s_range1 int,
+IN s_range2 int
+)
+BEGIN
+	DECLARE range1 int;
+	DECLARE range2 int;
+
+	SELECT count(s.salary)
+	FROM salaries s 
+	WHERE s.salary < s_range2 AND s.salary > s_range1;
+END;
+CALL salary_range(50000,60000)
+
+-- user enters an age, proc counts how many employees are of that age
+CREATE PROCEDURE age_counter (
+IN age int
+)
+BEGIN
+	SELECT count(year(now()) - year (e2.birth_date)) AS 'Employees this age'
+	FROM employees e2
+	WHERE year(now()) - year (e2.birth_date) = age;
+END;
+
+call age_counter (56);
